@@ -1,0 +1,12 @@
+venv/
+datasets/
+__pycache__/
+*.zip
+*.pt
+*.db
+.ipynb_checkpoints/
+runs/
+build/
+*.so
+PaddleOCR/
+TextRecognitionDataGenerator/

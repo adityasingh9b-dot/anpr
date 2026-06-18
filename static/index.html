@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANPR | Core System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { background: #0f0f1a; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .table { color: white; }
+        .status-badge { background: #00ff88; color: #000; font-weight: bold; border-radius: 5px; padding: 2px 8px; }
+        #search-box { background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; border-radius: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="glass">
+            <h2 class="mb-4"><i class="bi bi-shield-check"></i> ANPR Real-time Feed</h2>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" id="search-box" placeholder="Search Plate Number...">
+                </div>
+            </div>
+            <table class="table table-hover">
+                <thead><tr><th>#ID</th><th>Number Plate</th><th>Pass Type</th></tr></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function fetchLatest() {
+            try {
+                const res = await fetch('/api/latest');
+                const data = await res.json();
+                if (data.records) {
+                    const body = document.getElementById('table-body');
+                    body.innerHTML = '';
+                    data.records.forEach(row => {
+                        // row[0] = p.id, row[1] = v.plate_number, row[2] = p.pass_type
+                        body.innerHTML += `
+                            <tr>
+                                <td>${row[0]}</td>
+                                <td><strong>${row[1]}</strong></td>
+                                <td><span class="status-badge">${row[2]}</span></td>
+                            </tr>`;
+                    });
+                }
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
+        }
+        setInterval(fetchLatest, 2000);
+        fetchLatest(); // Initial call
+    </script>
+</body>
+</html>

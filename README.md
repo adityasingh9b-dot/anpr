@@ -1,279 +1,394 @@
-# 🚗 Low-Latency Indian ANPR Video Ingestion Pipeline (Week 1)
+# 🚗 Real-Time Indian ANPR System (Full-Stack)
 
-A high-performance **hybrid C++ and Python video ingestion engine** designed for real-time **Indian Automatic Number Plate Recognition (ANPR)** systems.
-
-This module eliminates runtime memory allocation bottlenecks commonly found in pure Python video pipelines by leveraging:
-
-* Native hardware video streams
-* In-place matrix transformations
-* Pre-allocated memory buffers
-* Zero-copy memory sharing using PyBind11
+> High-performance, low-latency Automatic Number Plate Recognition (ANPR) system built with a hybrid **C++ ingestion engine**, **YOLOv8 plate detector**, **EasyOCR recognition pipeline**, **FastAPI backend**, and a real-time operator dashboard.
 
 ---
 
-# 📖 Overview
+## ✨ Features
 
-The goal of this project is to build a low-latency video ingestion layer capable of feeding downstream ANPR models efficiently.
-
-Instead of repeatedly allocating memory for every incoming frame, the pipeline performs all processing inside pre-allocated native buffers and exposes the processed frame directly to Python through NumPy-compatible memory views.
-
----
-
-# 🏎️ The Problem: Pure Python Video Processing
-
-## 🔴 Baseline Approach (`ingestion.py`)
-
-The initial implementation was written entirely in Python.
-
-While functional, high-frequency video processing introduces significant overhead due to continuous memory allocation and deallocation.
-
-### Bottlenecks
-
-For every captured frame:
-
-* Python allocates fresh memory buffers.
-* Color-space conversions create additional temporary arrays.
-* Resizing operations allocate new matrices.
-* Garbage collection introduces unpredictable latency spikes.
-
-At **30+ FPS**, these repeated allocations consume CPU cycles and increase end-to-end latency.
+* ⚡ Native C++ OpenCV ingestion pipeline
+* 🔄 Zero-copy frame transfer via PyBind11
+* 🎯 YOLOv8 fine-tuned for Indian number plates
+* 🔤 EasyOCR-based plate text extraction
+* 🚦 Vehicle pass lifecycle management
+* 🗄️ SQLite relational database
+* 🌐 FastAPI REST backend
+* 📊 Real-time operator dashboard
+* 🔍 OCR voting mechanism for stable recognition
+* 📈 Designed for sub-100ms processing latency
 
 ---
 
-# ⚡ Optimized Hybrid Architecture
-
-## 🟢 C++ Core + Python Interface
-
-The ingestion layer was rewritten in native C++ and exposed to Python through **PyBind11**.
-
-Relevant files:
-
-* `src/pipeline.cpp`
-* `test_pipeline.py`
-
-### Key Optimizations
-
-#### 1. Pre-Allocated Static Context
-
-Memory buffers are allocated only once during startup:
-
-* `frame` → Raw BGR frame
-* `gray` → Grayscale buffer
-* `resized` → Downsampled output buffer
-
-No allocations occur inside the processing loop.
-
----
-
-#### 2. In-Place Frame Processing
-
-All frame transformations occur within the same memory regions.
-
-Benefits:
-
-* No repeated heap allocations
-* Reduced CPU overhead
-* Consistent frame processing latency
-
----
-
-#### 3. Zero-Copy Memory Sharing
-
-Instead of copying frame data from C++ into Python:
-
-* PyBind11 exports a `py::buffer_info`
-* Buffer metadata includes:
-
-  * Dimensions
-  * Strides
-  * Raw data pointers
-
-Python then creates a NumPy array directly over the native C++ memory buffer.
-
-Result:
-
-* No frame duplication
-* No serialization overhead
-* Near-zero transfer latency
-
----
-
-# 📁 Repository Structure
+# 📐 System Architecture
 
 ```text
-.
-├── CMakeLists.txt
-├── README.md
-├── .gitignore
-├── src/
-│   └── pipeline.cpp
-├── test_pipeline.py
-└── ingestion.py
+┌─────────────────────┐
+│ USB/IP Camera Feed  │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ C++ OpenCV Engine   │
+│ Frame Acquisition   │
+└──────────┬──────────┘
+           │ Zero-Copy
+           ▼
+┌─────────────────────┐
+│ PyBind11 Interface  │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ YOLOv8 Detector     │
+│ Plate Localization  │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ EasyOCR Engine      │
+│ Plate Recognition   │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ SQLite Database     │
+└──────────┬──────────┘
+           ▼
+┌─────────────────────┐
+│ FastAPI Dashboard   │
+└─────────────────────┘
 ```
-
-### File Descriptions
-
-| File               | Description                                    |
-| ------------------ | ---------------------------------------------- |
-| `CMakeLists.txt`   | Build configuration for CMake                  |
-| `README.md`        | Project documentation                          |
-| `.gitignore`       | Excludes build artifacts and environment files |
-| `src/pipeline.cpp` | Native C++ ingestion engine (V4L2)             |
-| `test_pipeline.py` | Zero-copy evaluation script                    |
-| `ingestion.py`     | Legacy pure Python implementation              |
 
 ---
 
-# 🛠️ Prerequisites
+# 📅 Development Roadmap
 
-## Linux / Ubuntu Dependencies
+| Week | Milestone          | Deliverables                                            |
+| ---- | ------------------ | ------------------------------------------------------- |
+| 1    | Ingestion Pipeline | Native C++ OpenCV loop with PyBind11 zero-copy sharing  |
+| 2    | ML Engine          | YOLOv8 detector + EasyOCR integration for Indian plates |
+| 3    | Data Lifecycle     | Vehicle pass schema, business rules & audit history     |
+| 4    | Operator UI        | Dashboard, APIs, documentation and deployment           |
 
-Install compiler toolchains and OpenCV development libraries:
+---
+
+# 🛠️ Technology Stack
+
+## Core Processing
+
+* C++
+* OpenCV
+* PyBind11
+
+## Machine Learning
+
+* YOLOv8
+* EasyOCR
+* NumPy
+
+## Backend
+
+* FastAPI
+* Uvicorn
+
+## Database
+
+* SQLite
+
+## Frontend
+
+* Bootstrap 5
+* JavaScript
+* Glassmorphism UI
+
+---
+
+# 📂 Project Structure
+
+```text
+anpr/
+│
+├── src/
+│   └── pipeline.cpp
+│
+├── models/
+│   └── anpr_plate_detector_v1.pt
+│
+├── datasets/
+│   └── indian_anpr/
+│
+├── runs/
+│
+├── build/
+│
+├── ingestion.py
+├── test_pipeline.py
+├── main.py
+│
+└── README.md
+```
+
+---
+
+# 🚀 Quick Start
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/yourusername/real-time-indian-anpr.git
+
+cd real-time-indian-anpr
+```
+
+---
+
+## 2. Install Dependencies
+
+### System Packages
 
 ```bash
 sudo apt update
-sudo apt install build-essential cmake libopencv-dev python3-dev
+
+sudo apt install \
+build-essential \
+cmake \
+libopencv-dev \
+python3-dev
+```
+
+### Python Packages
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
 
-## Python Environment Setup
-
-Activate your virtual environment:
+## 3. Build C++ Engine
 
 ```bash
-source venv/bin/activate
-```
-
-Install required packages:
-
-```bash
-pip install opencv-python pybind11 numpy ultralytics
-```
-
----
-
-# ⚙️ Build Instructions
-
-## Step 1: Compile the Native C++ Module
-
-Generate and build the shared object library:
-
-```bash
-# Create build directory
 mkdir build
+
 cd build
 
-# Generate build files
 cmake ..
 
-# Compile
-make
-
-# Copy generated module to project root
-cp cpp_ingestion*.so ..
-
-cd ..
-```
-
-After compilation, the generated module will be available as:
-
-```text
-cpp_ingestion.so
+make -j$(nproc)
 ```
 
 ---
 
-# ▶️ Running the Optimized Pipeline
-
-Launch the zero-copy testing pipeline:
+## 4. Test Camera Pipeline
 
 ```bash
-python3 test_pipeline.py
+python test_pipeline.py
 ```
-
-The script will:
-
-* Load the compiled C++ module
-* Connect to the camera using Linux V4L2
-* Perform grayscale conversion and resizing
-* Display the processed stream
-* Report live latency metrics
-
-### Exit
-
-Press:
-
-```text
-q
-```
-
-to terminate the stream safely.
 
 ---
 
-# 🧪 Baseline Comparison
-
-To compare performance against the original Python implementation:
+## 5. Run Full ANPR Pipeline
 
 ```bash
-python3 ingestion.py
+LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 /usr/lib/x86_64-linux-gnu/libpango-1.0.so.0" python3 test_pipeline_with_ocr.py
 ```
-
-This provides a direct reference for measuring:
-
-* Memory overhead
-* CPU utilization
-* Frame latency
-* Allocation cost
 
 ---
 
-# 📊 Week 1 Achievements
+## 6. Launch Dashboard
 
-### ✅ Zero Runtime Allocation
-
-Moved frame buffers from dynamic per-frame allocations to static native memory.
-
-### ✅ Native Hardware Ingestion
-
-Integrated Linux camera streams using:
-
-```cpp
-cv::CAP_V4L2
+```bash
+uvicorn main:app --reload
 ```
 
-for lower-overhead video capture.
+Open:
 
-### ✅ Zero-Copy Python Integration
-
-Mapped native C++ memory directly into NumPy arrays using PyBind11 buffer interfaces.
-
-### ✅ Efficient Memory Layout Management
-
-Implemented stride-aware buffer descriptors:
-
-```cpp
-sizeof(unsigned char) * columns
+```text
+http://127.0.0.1:8000
 ```
-
-ensuring correct multidimensional memory mapping without pixel corruption.
 
 ---
 
-# 🎯 Current Outcome
+# 🧠 Machine Learning Pipeline
 
-The ingestion pipeline now delivers:
+### Stage 1 — Detection
 
-* Low-latency frame acquisition
-* Zero-copy C++ → Python transfer
-* Minimal memory overhead
-* Stable real-time performance suitable for ANPR workloads
+Custom YOLOv8 model trained on Indian license plate datasets.
 
-This forms the foundation for upcoming stages involving:
+Output:
 
-* Vehicle detection
-* Number plate localization
-* OCR inference
-* End-to-end Indian ANPR deployment
+```text
+Vehicle Image
+        ↓
+Plate Bounding Box
+```
+
+---
+
+### Stage 2 — OCR
+
+EasyOCR extracts text from cropped plate image.
+
+Output:
+
+```text
+UP76AB1234
+```
+
+---
+
+### Stage 3 — Voting Logic
+
+Multiple frame predictions are aggregated.
+
+Example:
+
+```text
+UP76AB1234
+UP76AB1234
+UP76AB1234
+UP76AB1284
+UP76AB1234
+```
+
+Final Output:
+
+```text
+UP76AB1234
+```
+
+---
+
+# 🗄️ Database Design
+
+## vehicles
+
+| Column       | Type     |
+| ------------ | -------- |
+| id           | INTEGER  |
+| plate_number | TEXT     |
+| status       | TEXT     |
+| created_at   | DATETIME |
+
+---
+
+## passes
+
+| Column      | Type     |
+| ----------- | -------- |
+| id          | INTEGER  |
+| vehicle_id  | INTEGER  |
+| detected_at | DATETIME |
+| confidence  | REAL     |
+
+---
+
+# ⚡ Performance Optimizations
+
+## Zero-Copy Memory Sharing
+
+Frames are transferred directly from C++ memory into NumPy without heap duplication.
+
+Benefits:
+
+* Reduced memory usage
+* Lower latency
+* Higher FPS
+
+---
+
+## OCR Stabilization
+
+Uses frame voting:
+
+```python
+Counter(predictions).most_common(1)
+```
+
+to eliminate OCR jitter.
+
+---
+
+## Database Efficiency
+
+Optimized JOIN queries for dashboard updates.
+
+---
+
+# 📊 Current Model Performance
+
+| Metric    | Score |
+| --------- | ----- |
+| Precision | 95.2% |
+| Recall    | 79.0% |
+| mAP@50    | 85.4% |
+| mAP@50-95 | 42.4% |
+
+Model:
+
+```text
+YOLOv8n
+```
+
+Dataset:
+
+```text
+Indian Number Plates
+```
+
+---
+
+# 📸 Screenshots
+
+## Detection
+
+```text
+[Insert Detection Screenshot]
+```
+
+## OCR Recognition
+
+```text
+[Insert OCR Screenshot]
+```
+
+## Operator Dashboard
+
+```text
+[Insert Dashboard Screenshot]
+```
+
+---
+
+# 🔮 Future Improvements
+
+* TensorRT acceleration
+* Multi-camera support
+* Redis event queue
+* PostgreSQL migration
+* Docker deployment
+* Kubernetes scaling
+* Automatic blacklist alerts
+* HSRP-specific OCR model
+* DeepSORT vehicle tracking
+
+---
+
+# 🤝 Contributing
+
+Pull requests are welcome.
+
+For major changes, open an issue first to discuss the proposed modifications.
+
+---
+
+# 📄 License
+
+MIT License
+
+---
+
+# 👨‍💻 Author
+
+Aditya Singh
+
+Real-Time Indian ANPR System
+
+Built as a full-stack computer vision engineering project combining native systems programming, machine learning, backend APIs, and operator-facing web interfaces.
 

@@ -334,41 +334,7 @@ Indian Number Plates
 
 ---
 
-# 📸 Screenshots
 
-## Detection
-
-```text
-[Insert Detection Screenshot]
-```
-
-## OCR Recognition
-
-```text
-[Insert OCR Screenshot]
-```
-
-## Operator Dashboard
-
-```text
-[Insert Dashboard Screenshot]
-```
-
----
-
-# 🔮 Future Improvements
-
-* TensorRT acceleration
-* Multi-camera support
-* Redis event queue
-* PostgreSQL migration
-* Docker deployment
-* Kubernetes scaling
-* Automatic blacklist alerts
-* HSRP-specific OCR model
-* DeepSORT vehicle tracking
-
----
 
 # 🤝 Contributing
 

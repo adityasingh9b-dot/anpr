@@ -132,9 +132,9 @@ anpr/
 ## 1. Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/real-time-indian-anpr.git
+git clone https://github.com/adityasingh9b-dot/anpr.git
 
-cd real-time-indian-anpr
+cd anpr
 ```
 
 ---
@@ -178,7 +178,7 @@ make -j$(nproc)
 ## 4. Test Camera Pipeline
 
 ```bash
-python test_pipeline.py
+python test_pipeline_with_ocr.py
 ```
 
 ---
